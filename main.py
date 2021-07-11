@@ -1,9 +1,12 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext.callbackqueryhandler import CallbackQueryHandler
+from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from weather import get_forecasts
+import keyInfo
 
 # Check for new messages -> polling
-updater = Updater(token="1707166632:AAEYOQDCQU3ltuGpbjIhz43f1TefK_5QEW4")
+updater = Updater(token=keyInfo.token)
 
 # Allows to register handler -> command,audio,video,text
 dispatcher = updater.dispatcher
@@ -42,6 +45,32 @@ def button(update, context):
 
 button_handler = CallbackQueryHandler(button)
 dispatcher.add_handler(button_handler)
+
+def get_location(update, context):
+    button = [
+        [KeyboardButton("Share Location", request_location=True)]
+    ]
+    reply_markup = ReplyKeyboardMarkup(button)
+    context.bot.sendMessage(chat_id=update.message.chat_id,
+                     text="Mind sharing location?",
+                     reply_markup=reply_markup)
+
+
+get_location_handler = CommandHandler("location", get_location)
+dispatcher.add_handler(get_location_handler)
+
+def location(update, context):
+    lat = update.message.location.latitude
+    lon = update.message.location.longitude
+    forecasts = get_forecasts(lat, lon)
+    context.bot.send_message(chat_id=update.message.chat_id,
+                     text=forecasts,
+                     reply_markup=ReplyKeyboardRemove()) # This will remove the Location sharing permission tab
+
+
+location_handler = MessageHandler(Filters.location, location)
+dispatcher.add_handler(location_handler)
+
 
 
 # Define a callback function for doing echo to any other command than '/start'
