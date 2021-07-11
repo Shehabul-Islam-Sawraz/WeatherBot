@@ -25,7 +25,7 @@ def get_forecasts(lat, lon):
     #code = address.get('country_code')
     zipcode = address.get('postcode')
 
-    url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={key}"
+    url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={keyInfo.key}"
     response = requests.get(url).json()
     for i in range(len(response['list'])):
         basic_info = response['list'][i]['main']
@@ -58,3 +58,5 @@ def get_forecasts(lat, lon):
                    humidity,weather,wind_speed))
 
     return "".join(results[:10])
+
+#print(get_forecasts(-1,32))
